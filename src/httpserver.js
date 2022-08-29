@@ -2,6 +2,7 @@ import { loadSchema, readFromBytebin } from "./index.js";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import { JSONPath } from "jsonpath-plus";
 
 async function main() {
   const schema = await loadSchema();
@@ -28,7 +29,17 @@ async function main() {
     );
 
     if (ok) {
-      res.send(data);
+      if (req.query.path) {
+        const result = new JSONPath({
+          path: req.query.path,
+          json: data,
+          wrap: false,
+          preventEval: true,
+        });
+        res.send(result);
+      } else {
+        res.send(data);
+      }
     } else {
       res.status(400).send(errorMsg);
     }
