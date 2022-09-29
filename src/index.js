@@ -21,7 +21,8 @@ async function parseData(req, schema) {
 export async function readFromBytebin(code, schema, extraHeaders) {
   const { SamplerData, HeapData } = schema;
 
-  const req = await fetch(`https://bytebin.lucko.me/${code}`, {
+  const baseUrl = process.env.BYTEBIN_URL || "https://bytebin.lucko.me/";
+  const req = await fetch(baseUrl + code, {
     headers: {
       "User-Agent": "spark2json",
       ...extraHeaders,
