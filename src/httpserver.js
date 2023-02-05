@@ -29,16 +29,21 @@ async function main() {
     );
 
     if (ok) {
-      if (req.query.path) {
-        const result = new JSONPath({
-          path: req.query.path,
-          json: data,
-          wrap: false,
-          preventEval: true,
-        });
-        res.send(result);
-      } else {
-        res.send(data);
+      try {
+        if (req.query.path) {
+          const result = new JSONPath({
+            path: req.query.path,
+            json: data,
+            wrap: false,
+            preventEval: true,
+          });
+          res.send(result);
+        } else {
+          res.send(data);
+        }
+      } catch(e) {
+        console.error(e);
+        res.status(400).send('server error');
       }
     } else {
       res.status(400).send(errorMsg);
