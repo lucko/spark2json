@@ -5,9 +5,14 @@ async function main() {
     console.log("usage: node cli.js <code>");
     return;
   }
-  
+
   const schema = await loadSchema();
-  const { ok, data, errorMsg } = await readFromBytebin(process.argv[2], schema, {});
+  const { ok, data, errorMsg } = await readFromBytebin(
+    process.argv[2],
+    schema,
+    {},
+    true
+  );
 
   if (ok) {
     console.log(JSON.stringify(data));

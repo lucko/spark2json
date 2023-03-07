@@ -18,8 +18,8 @@ async function parseData(req, schema) {
   return schema.read(pbf);
 }
 
-export async function readFromBytebin(code, schema, extraHeaders) {
-  const { SamplerData, HeapData } = schema;
+export async function readFromBytebin(code, schema, extraHeaders, full) {
+  const { SamplerData, HeapData, SamplerDataLite, HeapDataLite } = schema;
 
   const baseUrl = process.env.BYTEBIN_URL || "https://bytebin.lucko.me/";
   const req = await fetch(baseUrl + code, {
@@ -34,9 +34,15 @@ export async function readFromBytebin(code, schema, extraHeaders) {
 
   const type = req.headers.get("content-type");
   if (type === "application/x-spark-sampler") {
-    return { ok: true, data: await parseData(req, SamplerData) };
+    return {
+      ok: true,
+      data: await parseData(req, full ? SamplerData : SamplerDataLite),
+    };
   } else if (type === "application/x-spark-heap") {
-    return { ok: true, data: await parseData(req, HeapData) };
+    return {
+      ok: true,
+      data: await parseData(req, full ? HeapData : HeapDataLite),
+    };
   } else {
     return { ok: false, errorMsg: `unknown type: ${type}` };
   }

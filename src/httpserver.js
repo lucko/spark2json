@@ -22,10 +22,12 @@ async function main() {
       };
     }
 
+    const full = !!req.query.full || req.query.full == "1";
     const { ok, data, errorMsg } = await readFromBytebin(
       req.params.code,
       schema,
-      extraHeaders
+      extraHeaders,
+      full
     );
 
     if (ok) {
@@ -41,9 +43,9 @@ async function main() {
         } else {
           res.send(data);
         }
-      } catch(e) {
+      } catch (e) {
         console.error(e);
-        res.status(400).send('server error');
+        res.status(400).send("server error");
       }
     } else {
       res.status(400).send(errorMsg);
