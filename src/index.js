@@ -12,14 +12,14 @@ export async function loadSchema() {
 }
 
 // Parses spark data from a http request using the given schema
-async function parseData(req, schema) {
+async function parseData(req, schema, type) {
   const buf = await req.arrayBuffer();
   const pbf = new Pbf(new Uint8Array(buf));
-  return schema.read(pbf);
+  return {type, ...schema.read(pbf)}
 }
 
 export async function readFromBytebin(code, schema, extraHeaders, full) {
-  const { SamplerData, HeapData, SamplerDataLite, HeapDataLite } = schema;
+  const { SamplerData, HeapData, SamplerDataLite, HeapDataLite, HealthDataLite } = schema;
 
   const baseUrl = process.env.BYTEBIN_URL || "https://bytebin.lucko.me/";
   const req = await fetch(baseUrl + code, {
@@ -36,12 +36,17 @@ export async function readFromBytebin(code, schema, extraHeaders, full) {
   if (type === "application/x-spark-sampler") {
     return {
       ok: true,
-      data: await parseData(req, full ? SamplerData : SamplerDataLite),
+      data: await parseData(req, full ? SamplerData : SamplerDataLite, 'sampler'),
     };
   } else if (type === "application/x-spark-heap") {
     return {
       ok: true,
-      data: await parseData(req, full ? HeapData : HeapDataLite),
+      data: await parseData(req, full ? HeapData : HeapDataLite, 'heap'),
+    };
+  } else if (type === "application/x-spark-health") {
+    return {
+      ok: true,
+      data: await parseData(req, HealthDataLite, 'health'),
     };
   } else {
     return { ok: false, errorMsg: `unknown type: ${type}` };
